@@ -88,7 +88,7 @@ public class CourseServlet extends HttpServlet {
             out.print(gson.toJson(result));
 
         }else{
-            out.print(gson.toJson("Debe ingresar el Id del registro que va ser eliminado"));
+            out.print(gson.toJson("Debe ingresar el Id del registro que va ser editado"));
         }
 
         out.flush();
