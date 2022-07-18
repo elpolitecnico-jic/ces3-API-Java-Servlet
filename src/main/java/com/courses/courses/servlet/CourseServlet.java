@@ -74,7 +74,24 @@ public class CourseServlet extends HttpServlet {
 
     @Override
     protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        super.doPut(request, response);
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.create();
+        ServletOutputStream out = response.getOutputStream();
+        response.setContentType("application/json");
+        setAccessControlHeaders(response);
+
+        if(request.getParameter("id") != null){
+
+            int idParameter = Integer.parseInt(request.getParameter("id"));
+            StringBuffer stringBuffer = getStringFromBody(request);
+            Course result = updateCourse(idParameter, stringBuffer);
+            out.print(gson.toJson(result));
+
+        }else{
+            out.print(gson.toJson("Debe ingresar el Id del registro que va ser eliminado"));
+        }
+
+        out.flush();
     }
 
     @Override
@@ -144,6 +161,43 @@ public class CourseServlet extends HttpServlet {
         result.setUrlResource(obj.get("UrlResource").getAsString());
         result.setDescription(obj.get("Description").getAsString());
         result.setDurationTime(obj.get("DurationTime").getAsInt());
+
+        return result;
+
+    }
+
+    private Course updateCourse(int idCourse, StringBuffer stringBuffer){
+
+        Course result = new Course();
+        JsonObject obj = JsonParser.parseString(stringBuffer.toString()).getAsJsonObject();
+
+        for (Course course: listCourses) {
+
+            if (idCourse == course.getId()){
+
+                if(obj.get("Name").getAsString() != null && obj.get("Name").getAsString() != ""){
+                    course.setName(obj.get("Name").getAsString());
+                }
+
+                if(obj.get("UrlResource").getAsString() != null && obj.get("UrlResource").getAsString() != ""){
+                    course.setUrlResource(obj.get("UrlResource").getAsString());
+                }
+
+                if(obj.get("Description").getAsString() != null && obj.get("Description").getAsString() != ""){
+                    course.setDescription(obj.get("Description").getAsString());
+                }
+
+                if(obj.get("DurationTime").getAsString() != null && obj.get("DurationTime").getAsString() != ""){
+                    course.setDurationTime(obj.get("DurationTime").getAsInt());
+                }
+
+                result = course;
+
+                break;
+            }
+        }
+
+
 
         return result;
 
