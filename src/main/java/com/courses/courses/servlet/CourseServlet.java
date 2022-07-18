@@ -40,6 +40,7 @@ public class CourseServlet extends HttpServlet {
         Gson gson = gsonBuilder.create();
         ServletOutputStream out = response.getOutputStream();
         response.setContentType("application/json");
+        setAccessControlHeaders(response);
 
         if(request.getParameter("id") != null){
             int idParameter = Integer.parseInt(request.getParameter("id"));
@@ -60,6 +61,7 @@ public class CourseServlet extends HttpServlet {
         Gson gson = gsonBuilder.create();
         ServletOutputStream out = response.getOutputStream();
         response.setContentType("application/json");
+        setAccessControlHeaders(response);
 
         StringBuffer stringBuffer = getStringFromBody(request);
         Course newCourse = getCourseFromBody(stringBuffer);
@@ -71,13 +73,38 @@ public class CourseServlet extends HttpServlet {
     }
 
     @Override
-    protected void doDelete(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doDelete(req, resp);
+    protected void doPut(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        super.doPut(request, response);
     }
 
     @Override
-    protected void doPut(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        super.doPut(req, resp);
+    protected void doDelete(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+
+        GsonBuilder gsonBuilder = new GsonBuilder();
+        Gson gson = gsonBuilder.create();
+        ServletOutputStream out = response.getOutputStream();
+        response.setContentType("application/json");
+        setAccessControlHeaders(response);
+
+        if(request.getParameter("id") != null){
+
+            int idParameter = Integer.parseInt(request.getParameter("id"));
+
+            for (Course course: listCourses) {
+                if (idParameter == course.getId()){
+                    listCourses.remove(course);
+                    break;
+                }
+            }
+
+            out.print(gson.toJson(listCourses));
+
+        }else{
+            out.print(gson.toJson("Debe ingresar el Id del registro que va ser eliminado"));
+        }
+
+        out.flush();
+
     }
 
     private Course searchCourseById(int Id){
@@ -87,6 +114,7 @@ public class CourseServlet extends HttpServlet {
         for (Course course: listCourses) {
             if (Id == course.getId()){
                 result = course;
+                break;
             }
         }
 
@@ -119,5 +147,10 @@ public class CourseServlet extends HttpServlet {
 
         return result;
 
+    }
+
+    private void setAccessControlHeaders(HttpServletResponse resp) {
+        resp.setHeader("Access-Control-Allow-Origin", "*");
+        resp.setHeader("Access-Control-Allow-Methods", "GET, OPTIONS, HEAD, PUT, POST");
     }
 }
